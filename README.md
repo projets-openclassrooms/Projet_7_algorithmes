@@ -1,4 +1,5 @@
-# Python Application Developper - Projet 7 Resolvez des problemes en utilisant des algorithmes en Python
+# Python Application Developper
+#Projet 7 Resolvez des problemes en utilisant des algorithmes en Python
 
 ## Installation guide
 Python https://www.python.org/download/
