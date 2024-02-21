@@ -1,62 +1,58 @@
 import csv
 
 
-def read_stock_data(file_name, scenario=None):
+def read_stock_data(file_name):
     stocks = []
-    with open(f"data/{file_name}", newline='') as csvfile:
+with open(f"data/{file_name}", newline='') as csvfile:
         reader = csv.DictReader(csvfile)
+
         for row in reader:
-            if 'name' in row and 'price' in row and 'profit' in row:
-                price = float(row['price'])
-                if scenario == "1":
-                    if price < 0:
-                        price = abs(price)
-                elif scenario == "2":
-                    if price < 0:
-                        continue  # Ignorer les valeurs négatives
-                elif price == 0:  # Si le prix est nul, assigner une valeur très petite
-                    price = 0.00001
+            name = row["name"]
+
+            price = float(row['price'])
+            profit = float(row['profit'])
+            if price > 0 and profit > 0:
+                      # Ignorer les valeurs négatives
                 stocks.append({
                     'name': row['name'],
-                    'price': price,
-                    'profit': float(row['profit'])
+                    'price': int(float(row['price'])*100),
+                    'profit': calculate_effective_cost(row)
                 })
-            else:
-                print(f"Erreur: ligne invalide dans le fichier {file_name}")
     return stocks
 
 
 def calculate_effective_cost(stock):
     # print(stock['price'] * stock['profit'] / 100)
-    return int(stock['price'] * stock['profit'] / 100)
+    price = float(stock['price'])
+    percent = float(stock['profit'])/100
+    return int(round(price * percent,2)*100)
 
 
 def knapsack(stocks, budget):
-    n = len(stocks)
-    dp = [[0 for _ in range(budget + 1)] for _ in range(n + 1)]
+    m = len(stocks)
+    dp = [[0 for _ in range(budget + 1)] for _ in range(m + 1)]
 
-    for i in range(1, n + 1):
+    for i in range(1, m + 1):
         for j in range(1, budget + 1):
             if stocks[i - 1]['price'] <= j:
                 dp[i][j] = max(dp[i - 1][j],
-                               dp[i - 1][j - int(stocks[i - 1]['price'])] + calculate_effective_cost(stocks[i - 1]))
+                               dp[i - 1][j - stocks[i - 1]['price']]
+                               + stocks[i - 1]['profit'])
             else:
                 dp[i][j] = dp[i - 1][j]
 
     selected = []
 
     j = budget
+    n = len(stocks)
+    while j>0 and n>0 :
+        e =stocks[n-1]
 
-    for i in range(n, 0, -1):
-        if dp[i][j] != dp[i - 1][j]:
-            selected.append(stocks[i - 1])
-            j -= int(stocks[i - 1]['price'])
+        if dp[n][j] == dp[n - 1][j-e['price']]+e['profit']:
+            selected.append(e)
+            j -= e['price']
             # print(j)
-
-
-    # for stock in selected:
-    #     budget-= stock['price']
-    #     # print(budget)
+        n -= 1
 
     return selected
 
@@ -74,30 +70,30 @@ def main():
         '3': 'dataset2_Python+P7.csv'
     }
     selected_file = file_mapping.get(file_choice)
-    print("1. scenario 1")
-    print("2. scenario 2")
-    if selected_file:
-        scenario_choice = input("Choisissez un scénario (scenario 1 (prix en valeurs absolues)/ scenario 2(pas de valeurs négatives)) : ")
-        stocks = read_stock_data(selected_file, scenario_choice)
-        if stocks:
-            # print(f"Contenu du fichier {selected_file}:")
-            # for stock in stocks:
-            #     print(stock['name'])
-            selected_stocks = knapsack(stocks, 500)
+    # print("1. scenario 1")
+    # print("2. scenario 2")
+    # if selected_file:
+    #     scenario_choice = input("Choisissez un scénario (scenario 1 (prix en valeurs absolues)/ scenario 2(pas de valeurs négatives)) : ")
+    stocks = read_stock_data(selected_file)
+    # print(stocks)
+    if stocks:
+        # print(f"Contenu du fichier {selected_file}:")
+        # for stock in stocks:
+        #     print(stock['name'])
+        selected_stocks = knapsack(stocks, 500*100)
 
-            total_cost = sum(stock['price'] for stock in selected_stocks)
-            total_profit = sum(calculate_effective_cost(stock) for stock in selected_stocks)
+        total_cost = sum(stock['price'] for stock in selected_stocks)/100
+        total_profit = sum(stock['profit'] for stock in selected_stocks)/100
+        # print(selected_stocks)
+        print("\nActions sélectionnées:")
+        for stock in selected_stocks:
+            print(f"Nom: {stock['name']}, Coût: {stock['price']/100}, Profit: {stock['profit']/100}")
 
-            print("\nActions sélectionnées:")
-            for stock in selected_stocks:
-                print(f"Nom: {stock['name']}, Coût: {stock['price']}, Profit: {stock['profit']}%")
-
-            print(f"Coût total des actions sélectionnées: {total_cost}")
-            print(f"Profit total: {total_profit}")
-        else:
-            print(f"Fichier {selected_file} vide ou incorrect.")
+        print(f"Coût total des actions sélectionnées: {total_cost}")
+        print(f"Profit total: {total_profit}")
     else:
-        print("Choix de fichier invalide.")
+        print(f"Fichier {selected_file} vide ou incorrect.")
+
 
 
 if __name__ == "__main__":
