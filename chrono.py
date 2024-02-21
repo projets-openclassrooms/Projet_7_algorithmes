@@ -17,7 +17,9 @@ class Timer:
             print("Le timer n'a pas encore ete demarre.")
             return None
         elif self.end_time is None:
-            print("Le timer est toujours en cours. Utilisez la methode stop() pour l'arrêter.")
+            print(
+                "Le timer est toujours en cours. Utilisez la methode stop() pour l'arrêter."
+            )
             return None
         else:
             temps_ecoule = self.end_time - self.start_time
