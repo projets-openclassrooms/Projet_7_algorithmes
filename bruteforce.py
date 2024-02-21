@@ -14,7 +14,7 @@ def lire_actions_de_csv(nom_fichier):
             nom = row["name"]
             cout = float(row["price"])
 
-            benefice = float(row["profit"])
+            benefice = float(row["profit"])/100
             actions.append({"nom": nom, "price": cout, "profit": benefice})
 
     return actions
@@ -37,11 +37,13 @@ def bruteforce(actions, budget):
     return best_combination, max_profit
 
 
-# Demarrage application
+# Demarrage application temps
 depart_chrono = Timer()
 depart_chrono.start()
 print("depart du chrono")
 nom_fichier_csv = "data/dataset2_Python+P7.csv"
+nom_fichier_csv = "data/phase1+P7.csv"
+
 actions = lire_actions_de_csv(nom_fichier_csv)
 
 # print(actions)
