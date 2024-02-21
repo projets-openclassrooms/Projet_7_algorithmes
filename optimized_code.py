@@ -77,7 +77,7 @@ def main():
     print("1. scenario 1")
     print("2. scenario 2")
     if selected_file:
-        scenario_choice = input("Choisissez un scénario (scenario 1 / scenario 2) : ")
+        scenario_choice = input("Choisissez un scénario (scenario 1 (prix en valeurs absolues)/ scenario 2(pas de valeurs négatives)) : ")
         stocks = read_stock_data(selected_file, scenario_choice)
         if stocks:
             # print(f"Contenu du fichier {selected_file}:")
